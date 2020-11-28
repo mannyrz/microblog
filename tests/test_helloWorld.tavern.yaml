@@ -1,0 +1,8 @@
+test_name: Get location for US zip code 90210 and check response status code
+stages:
+  - name: Check that HTTP status code equals 200
+    request:
+      url: http://localhost:5000
+      method: GET
+    response:
+      status_code: 200
