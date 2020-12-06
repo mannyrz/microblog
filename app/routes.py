@@ -9,10 +9,10 @@ import string
 version = '000.01"
 
 #Database creditentials
-app.config['MYSQL_HOST'] 		= 'localhost'
-app.config['MYSQL_USER'] 		= 'root'
-app.config['MYSQL_PASSWORD'] 	= 'password'
-app.config['MYSQL_DB'] 			= 'videodb'
+app.config['MYSQL_HOST']		= 'localhost'
+app.config['MYSQL_USER']		= 'root'
+app.config['MYSQL_PASSWORD']	= 'password'
+app.config['MYSQL_DB']			= 'videodb'
 
 mysql = MySQL(app)
 vlg = db.SQLblogOps()
@@ -26,7 +26,6 @@ def login():
 	
 	dbList=[]
 	loginSuccess = False
-
 
 	# HTTP: Get users creditentials from web page
 	if request.method == 'POST':
@@ -75,7 +74,6 @@ def adduser():
 		
 		details   = request.form
 
-
 		# TODO:		
 		# accountNumber  = details['password']
 
@@ -96,7 +94,6 @@ def adduser():
 @app.route('/api/v1/adduser/', methods=['GET','POST'])
 def APIadduser():
 	loginSuccess = False
-	#acctVal = False
 
 	# TODO:		
 	# Improve restricted access, currently use user credentials
