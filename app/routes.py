@@ -6,7 +6,7 @@ import json
 import random
 import string
 
-version = '000.01"
+version = '000.03"
 
 #Database creditentials
 app.config['MYSQL_HOST']		= 'localhost'
