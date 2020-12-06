@@ -71,10 +71,9 @@ def adduser():
 	success = False
 
 	if request.method == 'POST':
-		print("******** test **************")
+		
 		details   = request.form
-		#print(type(details))
-		#print(details)
+
 
 		# TODO:		
 		# accountNumber  = details['password']
@@ -119,7 +118,7 @@ def APIadduser():
 		success = vlg.postBoxerData(boxerDetails, mysql)
 	else:
 		success = False
-		
+
 	if success:
 		return json.dumps({'success': 'True', 'status': 201, 'ContentType':'application/json'})
 	else:
