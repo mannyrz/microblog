@@ -1,3 +1,2 @@
-.README.md.swp
-app/__pycache__/routes.cpython-37.pyc
-app/__pycache__/db.cpython-37.pyc
+
+app/__pycache__/*
