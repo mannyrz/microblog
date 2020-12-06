@@ -3,9 +3,10 @@ from flask import Flask, render_template, request, session, jsonify
 from flask_mysqldb import MySQL
 from app import db
 import json
-
 import random
 import string
+
+version = '000.01"
 
 #Database creditentials
 app.config['MYSQL_HOST'] 		= 'localhost'
@@ -71,10 +72,6 @@ def adduser():
 	success = False
 
 	if request.method == 'POST':
-		print("******** test **************")
-		details   = request.form
-		#print(type(details))
-		#print(details)
 
 		# TODO:		
 		# accountNumber  = details['password']
