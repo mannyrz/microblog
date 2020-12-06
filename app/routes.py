@@ -26,7 +26,8 @@ def login():
 	dbList=[]
 	loginSuccess = False
 
-	# Get users creditentials from web page
+
+	# HTTP: Get users creditentials from web page
 	if request.method == 'POST':
 		details   = request.form
 		userName  = details['User_Name']
@@ -45,7 +46,8 @@ def login():
 			return 'Error on getting creditials'					
 	return render_template('login.html')	
 
-# Get users creditentials from web page
+
+# API: Get users creditentials
 @app.route('/api/v1/login', methods=['GET'])
 def APIlogin():
 	
@@ -62,62 +64,100 @@ def APIlogin():
 	else:
 		return 'Error on getting creditials'
 
-# Add Boxer via HTML post 	
+
+# HTTP: Add Boxer via HTML post 	
 @app.route('/adduser', methods=['GET', 'POST'])
 def adduser():
+	success = False
+
 	if request.method == 'POST':
+		print("******** test **************")
 		details   = request.form
-		acct      = details['perm']
-		firstName = details['First_Name']
-		lastName  = details['Last_Name']
-		userName  = details['User_Name']
-		email     = details['email']
-		password  = details['password']
-		cur = mysql.connection.cursor()
-		cur.execute("INSERT INTO Users(User_Id, Perm, First_Name, Last_Name, User_Name, email, password) VALUES (%s, %s, %s, %s, %s, %s, %s)", (0, acct, firstName, lastName, userName, email, password))
-		mysql.connection.commit()
-		cur.close()
-		return 'success'
+		#print(type(details))
+		#print(details)
+
+		# TODO:		
+		# accountNumber  = details['password']
+
+		boxerDetails = getApiBoxerDetials(details)
+		print(boxerDetails)
+		
+		success = vlg.postBoxerData(boxerDetails, mysql)
+		print(success)
+		if success:
+			return json.dumps({'success': 'True', 'status': 201, 'ContentType':'application/json'})
+		else:
+			return json.dumps({'success': 'False', 'status': 500, 'ContentType':'application/json'})
 	return render_template('adduser.html')
-	#return "Not Real World, but tests a micro world"
 
-# Add Boxer via JSON post or Command line agrs 
-@app.route('/api/v1/adduser', methods=['POST'])
+###
+# API: Add Boxer via JSON post or Command line agrs
+### 
+@app.route('/api/v1/adduser/', methods=['GET','POST'])
 def APIadduser():
-	req = request.get_json()
-	acct     	= req['perm']
-	firstname   = req['firstname']
-	lastname   	= req['lastname']
-	username 	= req['username']
-	email   	= req['email']
-	password 	= req['password']
+	loginSuccess = False
+	#acctVal = False
 
-	cur = mysql.connection.cursor()
-	cur.execute("INSERT INTO Boxer(User_Id, Perm, First_Name, Last_Name, User_Name, email, password) VALUES (%s, %s, %s, %s, %s, %s, %s)", (0, acct, firstname, lastname, username, email, password))
-	mysql.connection.commit()
-	cur.close()
-	return json.dumps({'success': 'True', 'status': 201, 'ContentType':'application/json'}) 
+	# TODO:		
+	# Improve restricted access, currently use user credentials
+	userName = request.args.get('username', None)
+	password = request.args.get('password', None)
 
+	print(userName)
+	print(password)
+
+	# Validate Users Creditials
+	dbList = validateCreditials(userName, password)
+	print(dbList)
+	loginStatus = dbList[0]
+	print(loginStatus)
+
+	if loginStatus:
+		req = request.get_json()
+		boxerDetails = getApiBoxerDetials(req)
+		
+		success = vlg.postBoxerData(boxerDetails, mysql)
+	else:
+		success = False
+		
+	if success:
+		return json.dumps({'success': 'True', 'status': 201, 'ContentType':'application/json'})
+	else:
+		return json.dumps({'success': 'False', 'status': 500, 'ContentType':'application/json'})
+
+
+###
+# Verify status
+###
 @app.route('/bye')
 def bye():
-	return "Bye-Bye"
-# # # # # # # # #
+	return json.dumps({'success': 'True', 'status': 201, 'ContentType':'application/json'})
+
+
+# # # # # # # # # # # # # # # # # #
+#	Support Fuctions
+# # # # # # # # # # # # # # # # # #
+
 def	validateCreditials(userName, password):
 	dbList = []
+	loginStatus = False
 	# verify db creditials
 	tmp = vlg.validateLogIn(userName, password, mysql)
 	if tmp is None:
 		#dbList=list(tmp)
-		print()
+		print(tmp)
+		print('Validation Failed')
 		loginStatus = False	
 	else:
 		dbList=list(tmp)
 		loginStatus = validateUserID(dbList, userName, password)
 		if loginStatus:
+			loginStatus = True
 			print("Login Successful!")
 		else:
 			loginStatus = False
 			print("Error: DB login Failure")
+	
 	dbList.insert(0,loginStatus)		
 	return dbList
 
@@ -141,7 +181,17 @@ def registerUserLogin(dbList):
 	session['uid']      = dbList[2]
 	session['acct']     = dbList[1]
 	return 	session['key']
-			
+
+def getApiBoxerDetials(req):	
+	boxerDetails = []
+
+	boxerDetails.append(req['perm'])
+	boxerDetails.append(req['firstname'])
+	boxerDetails.append(req['lastname'])
+	boxerDetails.append(req['username'])
+	boxerDetails.append(req['email'])
+	boxerDetails.append(req['password'])
+	return boxerDetails
 
 def randomString(stringLength=10):
     """Generate a random string of fixed length """
